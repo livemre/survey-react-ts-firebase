@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.kaushan-script-regular {
+  font-family: "Kaushan Script", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.rotate-45 {
+  transform: rotate(45deg);
+}
+
+.-rotate-45 {
+  transform: rotate(-45deg);
+}
+
+.cursor-disabled {
+  cursor: not-allowed;
+  
+}
+
+.changed-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 100%;
+  background-position: bottom;
+  background-size: cover;
+}
