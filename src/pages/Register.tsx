@@ -9,7 +9,14 @@ import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "../services/firebase";
 import { AuthContext } from "../Context";
 import checklist from "../assets/checklist.png";
-import { doc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
@@ -53,9 +60,51 @@ const Register = () => {
     await setDoc(doc(db, "users", uid), {
       email: user_email,
       uid: uid,
+      username: await makeAvailableUsername(),
       photoURL:
         "https://images.unsplash.com/photo-1711950903476-cc92274c0f12?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     });
+  };
+
+  useEffect(() => {
+    makeAvailableUsername();
+  }, []);
+
+  const randomNumber = (max: number) => {
+    return Math.floor(Math.random() * max) + 1;
+  };
+
+  const generateUsername = () => {
+    let username;
+    let status = false;
+    const num = randomNumber(1000000);
+    username = "user" + num;
+    return username;
+  };
+
+  const isUsernameAvailable = async (username: string) => {
+    const q = query(collection(db, "users"), where("username", "==", username));
+    const snapshot = await getDocs(q);
+    return snapshot.empty;
+  };
+
+  // Username olustur. Uygun mu diye sorgula eger uygunsa username dondur uygun degilse tekrar olusturup sorgula. uygun olana kadar dene.
+
+  const makeAvailableUsername = async () => {
+    let username;
+    let result;
+    let isAvailable;
+
+    do {
+      username = generateUsername();
+      isAvailable = await isUsernameAvailable(username);
+      console.log("User Var" + username);
+    } while (!isAvailable);
+
+    result = username;
+    console.log(result);
+
+    return result;
   };
 
   return (

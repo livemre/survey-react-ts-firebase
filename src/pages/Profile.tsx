@@ -39,7 +39,7 @@ const Profile = () => {
 
       getDownloadURL(snapshot.ref).then((downloadedURL) => {
         setChangedImageURL(downloadedURL);
-        updateImageFirebase(downloadedURL).then(() => getUserData());
+        updateImageFirebase(downloadedURL);
       });
     });
   };
@@ -49,34 +49,19 @@ const Profile = () => {
   const updateImageFirebase = async (image: string) => {
     if (user?.curUser?.uid) {
       const userRef = doc(db, "users", user?.curUser?.uid); // Kullanıcı referansı oluşturma
-      await updateDoc(userRef, { photoURL: image }); //
+      await updateDoc(userRef, { photoURL: image }).then(() =>
+        userData?.getUserData()
+      ); //
     }
   };
 
   useEffect(() => {
-    getUserData();
+    userData?.getUserData();
   }, [user]);
 
   useEffect(() => {
     console.log(changedImage?.name);
   }, [changedImage]);
-
-  const getUserData = async () => {
-    const q = query(
-      collection(db, "users"),
-      where("uid", "==", user?.curUser?.uid)
-    );
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) {
-      console.log("Bos");
-    } else {
-      snapshot.forEach((item) => {
-        console.log(item.data());
-        const data = item.data() as UserProps;
-        userData?.setUserData(data);
-      });
-    }
-  };
 
   if (userData == null) {
     return <>Loading....</>;
