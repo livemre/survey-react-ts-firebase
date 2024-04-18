@@ -28,3 +28,38 @@
   background-position: bottom;
   background-size: cover;
 }
+
+.like-icon {
+  color: grey;
+}
+
+.like-icon:hover {
+  color: red;
+}
+
+.comment-icon {
+color: grey;
+}
+
+.comment-icon:hover {
+  color: rgb(0, 170, 255);
+}
+
+.avatar {
+  border-radius: 100%;
+  width: 30px;
+  height: 30px;
+  border: 1px solid grey;
+}
+
+.bg-primary {
+  background-color: cadetblue;
+}
+
+.bg-primary:hover {
+  background-color: rgb(142, 204, 207);
+}
+
+.text-color-white {
+  color: white;
+}

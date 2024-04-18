@@ -60,6 +60,9 @@ const Register = () => {
     await setDoc(doc(db, "users", uid), {
       email: user_email,
       uid: uid,
+      firstName: "",
+      lastName: "",
+      desc: "",
       username: await makeAvailableUsername(),
       photoURL:
         "https://images.unsplash.com/photo-1711950903476-cc92274c0f12?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",

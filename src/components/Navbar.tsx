@@ -74,8 +74,6 @@ const Navbar = () => {
       let uid: string | undefined = user.curUser.uid;
       const surveyData = {
         uid: uid,
-        like: 0,
-        comments: [],
         question: question,
         options: optionMap,
       };
@@ -174,15 +172,19 @@ const Navbar = () => {
                 className="w-12 h-12 rounded-full"
                 onClick={() => setMenuVisible((prev) => !prev)}
               />
-              <div
-                className={`${
-                  menuVisible ? "visible" : "hidden"
-                } absolute top-24 `}
-              >
-                <div className="flex flex-col">
+            </div>
+            <div
+              className={`bg-teal-100 p-3 flex flex-col w-80 items-center   ${
+                menuVisible ? "visible" : "hidden"
+              } absolute top-24 right-24 `}
+            >
+              <div className="flex flex-col gap-3">
+                <div>
                   <Link to={"/profile"}>
                     <p>Profile</p>
                   </Link>
+                </div>
+                <div>
                   <button onClick={logout}>Logout</button>
                 </div>
               </div>

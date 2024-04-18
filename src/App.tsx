@@ -26,6 +26,7 @@ import {
   where,
 } from "firebase/firestore";
 import { get } from "firebase/database";
+import { ApiGetUserData } from "./services/ApiCalls.ts";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<AuthProps>({ curUser: null });
@@ -46,19 +47,10 @@ function App() {
   ]);
 
   const getUserData = async () => {
-    const q = query(
-      collection(db, "users"),
-      where("uid", "==", currentUser?.curUser?.uid)
-    );
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) {
-      console.log("Data Empty");
-    } else {
-      snapshot.forEach((item) => {
-        console.log(item.data());
-        const _data = item.data() as UserProps;
-        setUserData(_data);
-      });
+    const uid = currentUser.curUser?.uid;
+    if (uid) {
+      const data = await ApiGetUserData(uid);
+      setUserData(data);
     }
   };
 
