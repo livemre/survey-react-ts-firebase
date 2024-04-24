@@ -2,7 +2,7 @@ import React, { ChangeEvent, useContext, useEffect, useState } from "react";
 import { BiLike } from "react-icons/bi";
 import { BiCommentDetail } from "react-icons/bi";
 import { BiShare } from "react-icons/bi";
-import { ISurvey, VoteCounts } from "../types/Types";
+import { ISurvey, VoteCounts, surveyResult } from "../types/Types";
 import { FaCheckCircle } from "react-icons/fa";
 
 import {
@@ -13,20 +13,48 @@ import {
   isUserAnsweredTheSurvey,
 } from "../services/ApiCalls";
 import { AuthContext, UserProps } from "../Context";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 
-const Survey: React.FC<ISurvey> = ({ question, uid, options, docId }) => {
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+const Survey: React.FC<ISurvey> = ({
+  question,
+  uid,
+  options,
+  docId,
+  getSurveys,
+}) => {
   const user = useContext(AuthContext);
   const [userData, setUserData] = useState<UserProps | null>();
   const [answer, setAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
   const [userAnswer, setUserAnswer] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
-  const [surveyResults, setSurveyResuts] = useState<VoteCounts>();
+  const [surveyResults, setSurveyResuts] = useState<surveyResult[]>();
+  const [labels, setLabels] = useState<string[]>(["Emre", "Cafer"]);
 
   useEffect(() => {
     getUserData();
     checkSurveyAnswer();
-  }, [user]);
+    prepareSurveyData();
+    getSurveysAllAnswers();
+  }, [user, getSurveys]);
 
   const getUserData = async () => {
     let username;
@@ -75,6 +103,59 @@ const Survey: React.FC<ISurvey> = ({ question, uid, options, docId }) => {
   const getSurveysAllAnswers = async () => {
     const _results = await ApiGetSurveysAllAnswers(docId);
     setSurveyResuts(_results);
+    console.log(surveyResults);
+  };
+
+  const prepareSurveyData = () => {
+    let label2: string[] = [];
+
+    if (options) {
+      options.map((item) => {
+        label2.push(item.option);
+      });
+    }
+
+    setLabels(label2);
+  };
+
+  const data2 = {
+    labels,
+    datasets: [
+      {
+        data: surveyResults?.map((item) => {
+          return item.count;
+        }),
+        backgroundColor: [
+          "rgb(255, 99, 132)",
+          "rgb(54, 162, 235)",
+          "rgb(255, 205, 86)",
+        ],
+        borderColor: [
+          "rgb(255, 99, 132)",
+          "rgb(54, 162, 235)",
+          "rgb(255, 205, 86)",
+        ],
+        hoverOffset: 4,
+      },
+    ],
+  };
+
+  const _options = {
+    indexAxis: "y" as const,
+    tickLength: 0,
+    elements: {
+      bar: {
+        borderWidth: 2,
+      },
+    },
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: {
+        display: false,
+        text: "Chart.js Horizontal Bar Chart",
+      },
+    },
   };
 
   if (loading) {
@@ -82,37 +163,19 @@ const Survey: React.FC<ISurvey> = ({ question, uid, options, docId }) => {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-3 bg-gray-700 border m-12 rounded">
-      {isAnswered && isAnswered == true ? (
-        <div>
-          <p>Cevap Verilmis</p>
-        </div>
-      ) : (
-        <p>Cevap Verilmemis</p>
-      )}
+    <div
+      className="flex flex-col gap-3 p-3 border m-12 rounded w-28"
+      style={{ width: "600px" }}
+    >
       <div className="flex flex-row items-center gap-2">
         <img className="avatar" src={userData?.photoURL} />
         <p>{userData?.username}</p>
       </div>
-      <button onClick={getSurveysAllAnswers}>GET ANSWERS</button>
+
       <p className="text-2xl">{question}</p>
       {isAnswered && isAnswered == true ? (
         <div>
-          <button onClick={getUserAnswer}>GET ANSWER</button>
-          {options.map((item, index) => {
-            return (
-              <div key={index} className="flex flex-row gap-3">
-                <p>{item.option}</p>
-
-                <p>{surveyResults?.[item.id]}</p>
-                {item.id == userAnswer ? (
-                  <FaCheckCircle size={18} color="green" />
-                ) : (
-                  ""
-                )}
-              </div>
-            );
-          })}
+          <Bar options={_options} data={data2} />
         </div>
       ) : (
         <div>
@@ -133,7 +196,10 @@ const Survey: React.FC<ISurvey> = ({ question, uid, options, docId }) => {
             );
           })}
           <button
-            onClick={answerToSurvey}
+            onClick={() => {
+              answerToSurvey();
+              getSurveys();
+            }}
             className="border py-3 bg-primary text-color-white w-full"
           >
             Send

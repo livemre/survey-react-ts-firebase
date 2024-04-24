@@ -3,6 +3,7 @@ export interface ISurvey {
     question: string;
     uid: string;
     docId: string
+    getSurveys: () => void
 }
 
 interface IOption {
@@ -13,3 +14,8 @@ interface IOption {
 export type VoteCounts = {
     [key: number]: number; // Anahtar: Sayı, Değer: Sayı
 };
+
+export type surveyResult = {
+    value: number
+    count: number
+}

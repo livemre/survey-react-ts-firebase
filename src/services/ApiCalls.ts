@@ -12,10 +12,12 @@ import {
     where,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import { ISurvey } from "../types/Types";
+import { ISurvey, surveyResult } from "../types/Types";
 import { AuthContext, AuthProps, UserProps } from "../Context";
 import { useContext } from "react";
 import _ from "lodash";
+
+
 
 export const ApiGetSurveys = async () => {
     const surveysQuery = query(collection(db, "surveys"));
@@ -123,21 +125,58 @@ export const GetUserAnswer = async (surveyID: string, userID: string | undefined
 
 }
 
-export const ApiGetSurveysAllAnswers = async (surveyID: string): Promise<{ [answerId: number]: number }> => {
-    const answers: number[] = [];
+export const ApiGetSurveysAllAnswers = async (surveyID: string) => {
+    const answers: surveyResult[] = [];
+    let optionsLength: number = 0
+
+
+
+    // Anketin tum seceneklerininin sayisini bul.
+
+    const docRef = doc(db, "surveys", surveyID)
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        optionsLength = docSnap.data().options.length
+        console.log(optionsLength);
+
+    } else {
+        // docSnap.data() will be undefined in this case
+        console.log("No such document!");
+    }
+
+    let optionsResult: Array<{ value: number; count: number }> = [];
+
+    for (let i = 0; i < optionsLength; i++) {
+        optionsResult.push({ value: i, count: 0 });
+    }
+
+    console.log(optionsResult);
+
 
     const q = query(collection(db, "answeredSurveys"), where("id", "==", surveyID));
     const result = await getDocs(q);
 
+
+
     result.forEach((item) => {
         const answerId = item.data().answerId; // Assuming answerId is a property within the document data
-        answers.push(answerId);
+
+        optionsResult.map((item) => {
+            if (answerId - 1 == item.value) {
+                return item.count++
+            }
+        })
+
     });
 
-    const groupedVotes = _.countBy(answers); // Use Lodash's countBy function
-    console.log(groupedVotes);
+    console.log(optionsResult);
 
-    return groupedVotes;
+
+
+
+
+    return optionsResult;
 };
 
 // export const ApiGetSurveysAllAnswers = async (surveyID: string) => {
