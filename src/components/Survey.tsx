@@ -21,6 +21,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Colors,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
@@ -39,6 +40,7 @@ const Survey: React.FC<ISurvey> = ({
   options,
   docId,
   getSurveys,
+  image,
 }) => {
   const user = useContext(AuthContext);
   const [userData, setUserData] = useState<UserProps | null>();
@@ -125,16 +127,7 @@ const Survey: React.FC<ISurvey> = ({
         data: surveyResults?.map((item) => {
           return item.count;
         }),
-        backgroundColor: [
-          "rgb(255, 99, 132)",
-          "rgb(54, 162, 235)",
-          "rgb(255, 205, 86)",
-        ],
-        borderColor: [
-          "rgb(255, 99, 132)",
-          "rgb(54, 162, 235)",
-          "rgb(255, 205, 86)",
-        ],
+
         hoverOffset: 4,
       },
     ],
@@ -172,6 +165,9 @@ const Survey: React.FC<ISurvey> = ({
         <p>{userData?.username}</p>
       </div>
 
+      <div>
+        <img src={image} width={"100%"} height={300} />
+      </div>
       <p className="text-2xl">{question}</p>
       {isAnswered && isAnswered == true ? (
         <div>

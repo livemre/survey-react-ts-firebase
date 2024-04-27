@@ -33,6 +33,7 @@ const Home = () => {
               question={item.question}
               uid={item.uid}
               options={item.options}
+              image={item.image}
             />
           );
         })}

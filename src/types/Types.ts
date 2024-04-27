@@ -4,6 +4,7 @@ export interface ISurvey {
     uid: string;
     docId: string
     getSurveys: () => void
+    image: string
 }
 
 interface IOption {

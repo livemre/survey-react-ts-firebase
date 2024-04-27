@@ -27,6 +27,7 @@ import {
 } from "firebase/firestore";
 import { get } from "firebase/database";
 import { ApiGetUserData } from "./services/ApiCalls.ts";
+import { Submit2 } from "./pages/Submit2.tsx";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<AuthProps>({ curUser: null });
@@ -42,6 +43,7 @@ function App() {
         { path: "login", element: <Login /> },
         { path: "dashboard", element: <Dashboard /> },
         { path: "profile", element: <Profile /> },
+        { path: "submit", element: <Submit2 /> },
       ],
     },
   ]);

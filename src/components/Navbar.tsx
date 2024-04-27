@@ -22,6 +22,7 @@ import {
 import { auth, db } from "../services/firebase";
 import { signOut } from "firebase/auth";
 import { IoIosNotifications } from "react-icons/io";
+import ImageUploading, { ImageListType } from "react-images-uploading";
 
 interface OptionMap {
   option: string | number;
@@ -36,7 +37,9 @@ const Navbar = () => {
   const [optionMap, setOptionMap] = useState<OptionMap[]>([]);
   const [options, setOptions] = useState<OptionMap[]>([]);
   const [question, setQuestion] = useState<string>("");
-  const [menuVisible, setMenuVisible] = useState(true);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [images, setImages] = React.useState([]);
+  const maxNumber = 69;
 
   const modalRef = useRef<HTMLDivElement>(null);
   const createButtonRef = useRef<HTMLDivElement>(null);
@@ -69,6 +72,15 @@ const Navbar = () => {
     }
   }, [showModal]);
 
+  const onImageUpdateChange = (
+    imageList: ImageListType,
+    addUpdateIndex: number[] | undefined
+  ) => {
+    // data for submit
+    console.log(imageList, addUpdateIndex);
+    setImages(imageList as never[]);
+  };
+
   const createSurvey = async () => {
     if (user?.curUser?.uid) {
       let uid: string | undefined = user.curUser.uid;
@@ -98,13 +110,55 @@ const Navbar = () => {
       <div
         ref={modalRef}
         id="modal"
-        className={`fixed top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 w-1/2 h-1/2 flex justify-center items-center bg-black bg-opacity-50 z-50 ${
+        className={`shadow-lg fixed top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 w-1/2 h-1/2 flex justify-center items-center bg-white bg-opacity-90 z-50 ${
           showModal ? "" : "hidden"
         }`}
       >
         <div>
+          <ImageUploading
+            multiple
+            value={images}
+            onChange={onImageUpdateChange}
+            maxNumber={maxNumber}
+          >
+            {({
+              imageList,
+              onImageUpload,
+              onImageRemoveAll,
+              onImageUpdate,
+              onImageRemove,
+              isDragging,
+              dragProps,
+            }) => (
+              // write your building UI
+              <div className="upload__image-wrapper">
+                <button
+                  style={isDragging ? { color: "red" } : undefined}
+                  onClick={onImageUpload}
+                  {...dragProps}
+                >
+                  Click or Drop here
+                </button>
+                &nbsp;
+                <button onClick={onImageRemoveAll}>Remove all images</button>
+                {imageList.map((image, index) => (
+                  <div key={index} className="flex flex-row">
+                    <img src={image.dataURL} alt="" width="100" />
+                    <div className="image-item__btn-wrapper">
+                      <button onClick={() => onImageUpdate(index)}>
+                        Update
+                      </button>
+                      <button onClick={() => onImageRemove(index)}>
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ImageUploading>
           <textarea
-            className="mb-2 w-64 p-2"
+            className="mb-2 w-64 p-2 border"
             placeholder="Question"
             onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
               setQuestion(e.target.value);
@@ -124,7 +178,7 @@ const Navbar = () => {
               );
             })}
             <button
-              className="rounded border text-white p-2 hover:bg-teal-400"
+              className="rounded border text-black  p-2 hover:bg-teal-400"
               onClick={() => {
                 addOption({ option: "", id: optionMap.length + 1 });
               }}
@@ -153,12 +207,11 @@ const Navbar = () => {
         ) : (
           <div className="flex flex-row items-center gap-8">
             <div ref={createButtonRef}>
-              <p
-                className="border rounded p-3 text-white hover:bg-teal-500"
-                onClick={() => setShowModal(true)}
-              >
-                + Create
-              </p>
+              <Link to={"/submit"}>
+                <p className="border rounded p-3 text-white hover:bg-teal-500">
+                  + Create
+                </p>
+              </Link>
             </div>
             <div className="relative">
               <IoIosNotifications size={36} color="white" />
